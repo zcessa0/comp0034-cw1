@@ -2,7 +2,9 @@
 
 Check that you have included the following and used the correct filenames. Automated scripts are used to collate files for marking and if you change the filename your work will be missed.
 
-Non-code files may be submitted as markdown (.md), as a document (.pdf), or audio file (.mp3). Do not submit video. Audio is intended as an alternative for those who express themselves more effectively in speech than in text.
+Non-code files may be submitted as markdown (.md), PDF (.pdf), or audio (.mp3). Do not submit video. Audio is intended as an alternative for those who express themselves more effectively in speech than in text.
+
+Code must be submitted as a Python .py file. _Jupyter .ipynb is not allowed_ for this coursework.  
 
 Do not include your name in the files.
 

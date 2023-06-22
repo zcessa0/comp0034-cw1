@@ -1,13 +1,15 @@
-# This is deliberately badly written and does not conform to python naming standards
+# Deliberately badly written and with inappropriate test case names
 
-from employee import Employee
+@pytest.fixture
+def empfixt():
+    e = Employee(name="A N Other", title="Manager", employee_id="12345")
+    return e
 
-def testemp1():
-  e = Employee(name = "A N Other", title = "Manager", employee_id = "")
-  assert e.salary == 25000
-  
-  
-def testemp2():
-  e = Employee(name = "A N Other", title = "Manager", employee_id = "")
-  e.set_salary(250)
-  assert e.salary == 250
+
+def testemp1(e):
+    assert e.department == "HR"
+
+
+def testemp2(e):
+    e.calculate_salary(250)
+    assert e.salary == 250

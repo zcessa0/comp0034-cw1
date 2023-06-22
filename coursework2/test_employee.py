@@ -1,15 +1,15 @@
 # Deliberately badly written and with inappropriate test case names
 
 @pytest.fixture
-def empfixt():
+def emp():
     e = Employee(name="A N Other", title="Manager", employee_id="12345")
     return e
 
 
-def testemp1(e):
-    assert e.department == "HR"
+def testemp1(emp):
+    assert emp.department == "HR"
 
 
-def testemp2(e):
-    e.calculate_salary(250)
-    assert e.salary == 250
+def testemp2(emp):
+    emp.calculate_salary(250)
+    assert emp.salary == 250

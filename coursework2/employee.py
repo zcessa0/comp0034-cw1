@@ -1,22 +1,36 @@
-# Sample code for testing
+# Sample code for testing. Docstrings ommitted.
 
 class Employee:
 
-    def __init__(self, name, employee_id, title):
+    def __init__(self, name, employee_id, title, salary):
         self.name = name
         self.employee_id = employee_id
         self.title = title
-        self.department = department
-        self.salary = salary
+        self.department = ""
+        self._salary = salary
 
-    def calculate_salary(self, salary, hours_worked):
+    @property
+    def salary(self):
+        return self._salary
+
+    @salary.setter
+    def salary(self, value):
+        if value < 15000:
+            raise ValueError('Salary must be at least 15000')
+        else:
+            self._salary = value
+
+    def calculate_monthly_salary(self, hours_worked):
+        """ Overtime is paid at a rate of double the salary"""
         overtime = 0
-        if hours_worked > 50:
-            overtime = hours_worked - 50
-        self.salary = self.salary + (overtime * (self.salary / 50))
+        if hours_worked > 150:
+            overtime = hours_worked - 150
+        monthly_salary = self.salary/12 + (overtime * ((self.salary/12) / 150))
+        return monthly_salary
 
     def assign_department(self, emp_department):
         self.department = emp_department
 
     def __str__(self):
-        return '{} , id={}, is in {} and is a {}.'.format(self.name, self.employee_id, self.department, self.title)
+        return f'{self.name} , id={self.employee_id}, in {self.department} department, and is a {self.title}, ' \
+               f'with a salary of {self.salary}.'

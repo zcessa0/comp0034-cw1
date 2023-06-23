@@ -6,7 +6,7 @@ from employee import Employee
 
 def testemp1():
     e = Employee(name="A N Other", title="Manager", employee_id="12345", salary=45000)
-    assert emp.department == "HR"
+    assert e.department == "HR"
 
 
 def testemp2():

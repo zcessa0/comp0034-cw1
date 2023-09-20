@@ -23,7 +23,15 @@ classifiers = [
 #    "pytest",
 #]
 
-# Refer to https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+# Refer to https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["tests*"]
+include = ["coursework*"]  # alternatively: `exclude = ["additional*"]`
+namespaces = false
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-rA --verbose"
+
+[tool.pytest.config]
+rootpath = ["src"]

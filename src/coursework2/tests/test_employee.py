@@ -1,7 +1,7 @@
-# This is deliberately badly written and does not conform to good practice for test case naming standards
+# This file is deliberately badly written and does not conform to good practice for test case naming standards
 import pytest
 
-from employee import Employee
+from src.coursework2.employee import Employee
 
 
 def testemp1():

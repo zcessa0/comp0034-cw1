@@ -30,8 +30,8 @@ include = ["coursework*"]  # alternatively: `exclude = ["additional*"]`
 namespaces = false
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+# pythonpath = ["src"]
 addopts = "-rA --verbose"
 
-[tool.pytest.config]
-rootpath = ["src"]
+# [tool.pytest.config]
+# rootpath = ["src"]

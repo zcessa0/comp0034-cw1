@@ -76,6 +76,31 @@ def delete_data_2019():
    db.session.commit()
    return {"message":f"Data deleted successfully from the 2019 database. ID: {data.id}"}
 
+from flask import make_response
+
+@app.patch('/dataset_2019/<id>')
+def update_data_2019(id):
+   """Updates changed fields for the dataset
+   
+   """
+   # Find the data in the dataset
+   exising_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
+   # Get the updated details from the json sent in the HTTP patch request
+   data_json = request.get_json()
+   # Use Marshmallow to update the exisiting data records with the changes from the JSON
+   data_updated = dataset_schema_2019.load(data_json, instance=exising_data, partial=True)
+   # Commit the changes to the database
+   db.session.add(data_updated)
+   db.session.commit()
+   # Return JSON showing the updated record
+   updated_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
+   result = dataset_schema_2019.dump(updated_data)
+   response = make_response(result, 200)
+   response.headers['Content-Type'] = 'application/json'
+
+   return response   
+   
+
 # 2018 ROUTES
 
 # Returns a list of all datasets in JSON
@@ -108,7 +133,8 @@ def add_data_2018():
    :returns: JSON """
    dt_json = request.get_json()
    data = dataset_schema_2018.load(dt_json)
-   db.session.add(data)
+   for parameter in data:
+      db.session.add(parameter)
    db.session.commit()
    return {"message":f"Data added successfully to the database. ID: {data.id}"}
 

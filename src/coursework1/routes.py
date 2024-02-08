@@ -50,6 +50,19 @@ def add_data():
    return {"message":f"Data added successfully to the database. ID: {data.id}"}
 
 
+@app.delete('/dataset/<int:id>')
+def delete_data():
+   """ Deletes a dataset from the database
+   
+   Get the dataset from the database using the id and delete it from the database
+
+   :returns: JSON """
+   data = db.session.execute(db.select(Dataset).filter_by(id=id)).scalar_one_or_none()
+   db.session.delete(data)
+   db.session.commit()
+   return {"message":f"Data deleted successfully from the database. ID: {data.id}"}
+
+
 
    
 

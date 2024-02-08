@@ -4,6 +4,7 @@ from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from coursework1 import db
 
+
 class Dataset(db.Model):
     __tablename__ = "dataset"
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)

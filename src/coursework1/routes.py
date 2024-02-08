@@ -33,6 +33,24 @@ def get_dataset(id):
    result = dataset_schema.dump(dataset)
    return {"dataset": result}
 
+from flask import request
+
+@app.post('/dataset')
+def add_data():
+   """ Adds a new dataset to the database
+
+   Gets the JSON data from the request body and uses this to deserialise JSON to an object using Marshmallow 
+   event_schema.load()
+
+   :returns: JSON """
+   dt_json = request.get_json()
+   data = dataset_schema.load(dt_json)
+   db.session.add(data)
+   db.session.commit()
+   return {"message":f"Data added successfully to the database. ID: {data.id}"}
+
+
+
    
 
 

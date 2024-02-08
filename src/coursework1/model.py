@@ -4,31 +4,97 @@ from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from coursework1 import db
 
-
-class Dataset(db.Model):
-    __tablename__ = "dataset"
+class Dataset2019(db.Model):
+    __tablename__ = "2019_Dataset"
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     location: Mapped[str] = mapped_column(db.Text, nullable=False)
     ps_enroll_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
     ps_eligible_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_enroll_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_eligible_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
+
+class Dataset2018(db.Model):
+    __tablename__ = "2018_Dataset"
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    location: Mapped[str] = mapped_column(db.Text, nullable=False)
     ps_enroll_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
     ps_eligible_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_enroll_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_eligible_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
+
+class Dataset2017(db.Model):
+    __tablename__ = "2017_Dataset"
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    location: Mapped[str] = mapped_column(db.Text, nullable=False)
     ps_enroll_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
     ps_eligible_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_enroll_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_eligible_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
+
+class Dataset2016(db.Model):
+    __tablename__ = "2016_Dataset"
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    location: Mapped[str] = mapped_column(db.Text, nullable=False)
     ps_enroll_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
     ps_eligible_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_enroll_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_eligible_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
+
+class Dataset2015(db.Model):
+    __tablename__ = "2015_Dataset"
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    location: Mapped[str] = mapped_column(db.Text, nullable=False)
     ps_enroll_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
     ps_eligible_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_enroll_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
     sc_eligible_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
+
+
+# class Dataset(db.Model):
+#     __tablename__ = "dataset"
+#     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+#     location: Mapped[str] = mapped_column(db.Text, nullable=False)
+#     ps_enroll_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_eligible_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_enroll_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_eligible_2019: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_enroll_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_eligible_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_enroll_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_eligible_2018: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_enroll_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_eligible_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_enroll_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_eligible_2017: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_enroll_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_eligible_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_enroll_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_eligible_2016: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_enroll_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     ps_eligible_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_enroll_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
+#     sc_eligible_2015: Mapped[int] = mapped_column(db.Integer, nullable=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     # user_id: Mapped[int] = mapped_column(db.Integer, ForeignKey("user.user_id"))

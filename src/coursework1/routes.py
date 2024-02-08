@@ -133,8 +133,7 @@ def add_data_2018():
    :returns: JSON """
    dt_json = request.get_json()
    data = dataset_schema_2018.load(dt_json)
-   for parameter in data:
-      db.session.add(parameter)
+   db.session.add(data)
    db.session.commit()
    return {"message":f"Data added successfully to the database. ID: {data.id}"}
 

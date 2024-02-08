@@ -23,6 +23,15 @@ def get_datasets():
     result = datasets_schema.dump(datasets)
     return {"datasets": result}
 
+# Returns a single dataset in JSON
+@app.get('/dataset/<id>')
+def get_dataset(id):
+   """Returns the dataset with the specified id in JSON."""
+   # Get the dataset from the database
+   dataset = db.session.execute(db.select(Dataset).where(Dataset.id == id)).scalar_one_or_none()
+   # Serialize the dataset
+   result = dataset_schema.dump(dataset)
+   return {"dataset": result}
 
    
 

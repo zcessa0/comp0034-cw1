@@ -29,9 +29,9 @@ where = ["src"]
 include = ["coursework*"]  # alternatively: `exclude = ["additional*"]`
 namespaces = false
 
-[tool.pytest.ini_options]
-# pythonpath = ["src"]
-addopts = "-rA --verbose"
+#[tool.pytest.ini_options]
+#pythonpath = ["src"]
+#addopts = "-rA --verbose"
 
-# [tool.pytest.config]
-# rootpath = ["src"]
+#[tool.pytest.config]
+#rootpath = ["src"]

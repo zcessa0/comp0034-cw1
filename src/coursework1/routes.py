@@ -1,4 +1,4 @@
-from flask import current_app as app
+from flask import current_app as app, abort, jsonify
 
 @app.route('/')
 def hello():
@@ -37,15 +37,36 @@ def get_datasets_2019():
     result = datasets_schema_2019.dump(datasets)
     return {"datasets": result}
 
+# ERROR HANDLING for 404
+
+from sqlalchemy.exc import SQLAlchemyError
+
+# @app.errorhandler(404)
+# def resource_not_found(e):
+#     """
+#     Error handler for 404
+    
+#     Args:
+#         HTTP 404 error
+#     Returns:
+#         JSON response with the validation error message and the 404 status code
+#         """
+#     return jsonify(error=str(e)), 404
+
 # Returns a single dataset in JSON
 @app.get('/dataset_2019/<id>')
 def get_dataset_2019(id):
    """Returns the dataset with the specified id in JSON."""
    # Get the dataset from the database
-   dataset = db.session.execute(db.select(Dataset2019).where(Dataset2019.id == id)).scalar_one_or_none()
-   # Serialize the dataset
-   result = dataset_schema_2019.dump(dataset)
-   return {"dataset": result}
+   try:
+      dataset = db.session.execute(db.select(Dataset2019).where(Dataset2019.id == id)).scalar_one_or_none()
+      # Serialize the dataset
+      result = dataset_schema_2019.dump(dataset)
+      return {"dataset": result}
+   except SQLAlchemyError as e:
+      # See https://flask.palletsprojects.com/en/2.3.x/errorhandling/#returning-api-errors-as-json
+        abort(404, description="Region not found.")
+
 
 from flask import request
 
@@ -294,6 +315,8 @@ def delete_data_2015():
    db.session.delete(data)
    db.session.commit()
    return {"message":f"Data deleted successfully from the database. ID: {data.id}"}
+
+
 
 
 

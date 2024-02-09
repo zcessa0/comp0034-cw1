@@ -65,7 +65,7 @@ def add_data_2019():
 
 
 @app.delete('/dataset_2019/<int:id>')
-def delete_data_2019():
+def delete_data_2019(id):
    """ Deletes a dataset from the database
    
    Get the dataset from the database using the id and delete it from the database

@@ -15,20 +15,21 @@ def app():
         app A Flask app with a test config
     """
 
-    db_path = Path(__file__).parent.joinpath('data','test_coursework1.sqlite')
+    db_path = Path(__file__).parent.parent.joinpath('instance','test_coursework1.sqlite')
     test_cfg = {
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': "sqlite:///" + str(db_path),
     }
-    app = create_app(test_cfg=test_cfg)
+    app = create_app(test_config=test_cfg)
 
+    
     yield app
 
-    # Clean up / Reset resources
+    # Clean up / Reset resourcee
     # Delete the test database
-    os.unlink(db_path)
+    # os.unlink(db_path)
 
 
-    @pytest.fixture()
-    def client(app):
-        return app.test_client()
+@pytest.fixture()
+def client(app):
+    return app.test_client()

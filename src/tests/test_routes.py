@@ -6,58 +6,34 @@ def test_get_dataset_2019_status_code(client):
     WHEN a request is made to /dataset_2019
     THEN check the response is 200 OK
     """
+    # Make a request to the /dataset_2019 route
     response = client.get('/dataset_2019')
+    # Check that the response status code is 200
     assert response.status_code == 200
-
-# def test_get_dataset_2019_json(client):
-#     """
-#     GIVEN a Flask test client
-#     AND the database contains data for dataset_2019
-#     WHEN a request is made to /dataset_2019
-#     THEN response should contain json
-#     AND a dataset for Barent in 2019 should be in the JSON
-#     """
-#     response = client.get('/dataset_2019')
-#     assert response.headers['Content-Type'] == 'application/json'
-#     barnet_dataset_2019 = {
-#         "dataset": {
-#         "id": 3,
-#         "location": "Barnet",
-#         "ps_eligible_2019": 4047,
-#         "ps_enroll_2019": 32368,
-#         "sc_eligible_2019": 3297,
-#         "sc_enroll_2019": 26481
-#         }
-#     }
-    
-#     assert barnet_dataset_2019 in response.json
 
 def test_get_dataset_2019_json(client):
     """
     GIVEN a Flask test client
     AND the database contains data for dataset_2019
     WHEN a request is made to /dataset_2019
-    THEN response should contain json
+    THEN response should contain JSON
     AND a dataset for Barnet in 2019 should be in the JSON
     """
+    # The dataset for Barnet in 2019
+    barnet_dataset_2019 = {
+      "id": 3,
+      "location": "Barnet",
+      "ps_eligible_2019": 4047,
+      "ps_enroll_2019": 32368,
+      "sc_eligible_2019": 3297,
+      "sc_enroll_2019": 26481
+    }
+    # Make a request to the /dataset_2019 route
     response = client.get('/dataset_2019')
+    # Check that the response contains JSON
     assert response.headers['Content-Type'] == 'application/json'
-
-    data = response.json
-    datasets = data.get('datasets', [])  # Extract datasets list from the response
-
-    # Check if any dataset contains the location information
-    location_found = False
-    for dataset in datasets:
-        if dataset.get('location') == 'Barnet':
-            location_found = True
-            assert dataset['ps_enroll_2019'] == 32368
-            assert dataset['ps_eligible_2019'] == 4047
-            assert dataset['sc_enroll_2019'] == 26481
-            assert dataset['sc_eligible_2019'] == 3297
-            break
-
-    assert location_found, "Dataset for Barnet not found in the response"
+    # Check that the response contains the dataset for Barnet in 2019
+    assert barnet_dataset_2019 in response.json['datasets']
     
 def test_get_specific_dataset_2019(client):
     """
@@ -67,6 +43,7 @@ def test_get_specific_dataset_2019(client):
     THEN the response json should match that for Brent
     AND the response status code should be 200
     """
+    # The dataset for Brent in 2019
     brent_json = {
         "dataset": {
             "id": 5,
@@ -77,20 +54,25 @@ def test_get_specific_dataset_2019(client):
             "sc_enroll_2019": 19846
         }
     }
+    # Make a request to the /dataset_2019/5 route 
     response = client.get('/dataset_2019/5')
+    # Check that the response contains JSON
     assert response.headers["Content-Type"] == "application/json"
+    # Check that the response status code is 200
     assert response.status_code == 200
+    # Check that the response contains the dataset for Brent in 2019
     assert response.json == brent_json
 
 def test_get_dataset_2019_not_exists(client):
-        """
-        GIVEN a flask test client 
-        WHEN a request is made for a dataset that does not exist
-        THEN the response status code should be 404 Not Found
-        """
-        response = client.get('/dataset_2019/100')
-        assert response.status_code == 404
-
+    """
+    GIVEN a flask test client 
+    WHEN a request is made for a dataset that does not exist
+    THEN the response status code should be 404 Not Found
+    """
+    # Make a request to the /dataset_2019/100 route
+    response = client.get('/dataset_2019/100')
+    # Check that the response status code is 404
+    assert response.status_code == 404
 
 def test_post_dataset_2019(client):
     """
@@ -111,7 +93,7 @@ def test_post_dataset_2019(client):
     }
     # Pass the JSON in the HTTP POST request
     response = client.post('/dataset_2019', json=dataset_json, content_type='application/json')
-    # 201 is the status code for a successful POST request
+    # Check that the response status code is 201
     assert response.status_code == 201
 
 def test_dataset_post_error(client):
@@ -121,13 +103,16 @@ def test_dataset_post_error(client):
     WHEN a post request is made to /dataset_2019
     THEN the response status code should be 400 Bad Request
     """
+    # JSON to create a new dataset
     missing_dataset_json = {
         "ps_eligible_2019": 100,
         "ps_enroll_2019": 1000,
         "sc_eligible_2019": 100,
         "sc_enroll_2019": 1000
     }
+    # Pass the JSON in the HTTP POST request
     response = client.post('/dataset_2019', json=missing_dataset_json)
+    # Check that the response status code is 400
     assert response.status_code == 400
 
 def test_patch_dataset_2019(client, new_dataset):
@@ -136,13 +121,17 @@ def test_patch_dataset_2019(client, new_dataset):
     AND a Flask test client
     WHEN an UPDATE request is made to /dataset_2019/45 with a new location
     THEN the response status code should be 200
-    AND the response should include the message 'Dataset updated'
+    AND the response should include the message 'Dataset updated successfully from the 2019 database. ID: 46'
     """
+    # The id of the new dataset
     dataset_id = new_dataset.id
+    # The new location to update the dataset with
     new_dataset_info = {'ps_enroll_2019': 1500}
+    # Make a request to the /dataset_2019/45 route with the new location
     response = client.patch(f'/dataset_2019/{dataset_id}', json=new_dataset_info)
-
-    assert response.json['message'] == 'Dataset updated'
+    # Check that the response contains the message 'Dataset updated'
+    assert response.json['message'] == 'Dataset updated successfully from the 2019 database. ID: 46'
+    # Check that the response status code is 200
     assert response.status_code == 200
 
 def test_delete_dataset_2019(client, new_dataset):
@@ -153,8 +142,13 @@ def test_delete_dataset_2019(client, new_dataset):
     THEN the response status code should be 200
     AND the response content should include the message 'Data deleted successfully from the 2019 database. ID: 45'
     """
+    # The id of the new dataset
     dataset_id = new_dataset.id
+    # Make a request to the /dataset_2019/45 route
     response = client.delete(f'/dataset_2019/{dataset_id}')
-    assert response.status_code == 200
+    # Check that the response contains the message 'Data deleted successfully from the 2019 database. ID: 45'
     expected_message = f"Data deleted successfully from the 2019 database. ID: {dataset_id}"
     assert response.json['message'] == expected_message
+    # Check that the response status code is 200
+    assert response.status_code == 200
+    

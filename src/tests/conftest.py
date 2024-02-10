@@ -5,7 +5,6 @@ import pytest
 from sqlalchemy import exists
 from coursework1 import create_app, db
 from coursework1.model import Dataset2019
-from coursework1.schema import DatasetSchema2019
 
 
 @pytest.fixture(scope='module')
@@ -19,7 +18,7 @@ def app():
         app A Flask app with a test config
     """
 
-    db_path = Path(__file__).parent.parent.joinpath('instance','test_coursework1.sqlite')
+    db_path = Path(__file__).parent.parent.joinpath('instance','coursework1_test_db.sqlite')
     test_cfg = {
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': "sqlite:///" + str(db_path),

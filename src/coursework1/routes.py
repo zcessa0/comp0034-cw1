@@ -1,12 +1,16 @@
-from flask import current_app as app, abort, jsonify
+from flask import current_app as app, request, abort, jsonify
+from coursework1.schema import DatasetSchema2019, DatasetSchema2018, DatasetSchema2017, DatasetSchema2016, DatasetSchema2015
+from coursework1.model import Dataset2019, Dataset2018, Dataset2017, Dataset2016, Dataset2015
+from coursework1 import db
+import logging
+from sqlalchemy.exc import SQLAlchemyError
+from marshmallow.exceptions import ValidationError
+
 
 @app.route('/')
 def hello():
   return f"Hello!"
 
-from coursework1.schema import DatasetSchema2019, DatasetSchema2018, DatasetSchema2017, DatasetSchema2016, DatasetSchema2015
-from coursework1.model import Dataset2019, Dataset2018, Dataset2017, Dataset2016, Dataset2015
-from coursework1 import db
 
 # Flask-Marshmallow Schemas
 datasets_schema_2019= DatasetSchema2019(many=True)
@@ -24,6 +28,36 @@ dataset_schema_2016= DatasetSchema2016()
 datasets_schema_2015= DatasetSchema2015(many=True)
 dataset_schema_2015= DatasetSchema2015()
 
+# ERROR HANDLING
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)  # Set the logging level to DEBUG
+
+@app.errorhandler(404)
+def resource_not_found(e):
+    """
+    Error handler for 404
+    
+    Args:
+        HTTP 404 error
+    Returns:
+        JSON response with the validation error message and the 404 status code
+    """
+    return jsonify(error=str(e)), 404
+
+@app.errorhandler(ValidationError)
+def register_validation_error(error):
+   """Error handler for marshmallow schema validation errors
+   
+   Args:
+      error (ValidationError): Marshmallow error
+   
+   Returns:
+      HTTP response with the validation error message and the 400 status code
+   """
+   response = error.messages 
+   return response, 400
+
 # 2019 ROUTES
 
 # Use route and specify the HTTP method(s). If you do not specify the methods then it will default to GET.
@@ -37,38 +71,45 @@ def get_datasets_2019():
     result = datasets_schema_2019.dump(datasets)
     return {"datasets": result}
 
-# ERROR HANDLING for 404
-
-from sqlalchemy.exc import SQLAlchemyError
-
-# @app.errorhandler(404)
-# def resource_not_found(e):
-#     """
-#     Error handler for 404
-    
-#     Args:
-#         HTTP 404 error
-#     Returns:
-#         JSON response with the validation error message and the 404 status code
-#         """
-#     return jsonify(error=str(e)), 404
+# @app.get('/dataset_2019/<id>')
+# def get_dataset_2019(id):
+#    """Returns the dataset with the specified id in JSON."""
+#    # Get the dataset from the database
+#    dataset = db.session.execute(db.select(Dataset2019).where(Dataset2019.id == id)).scalar_one_or_none()
+#    # Serialize the dataset
+#    result = dataset_schema_2019.dump(dataset)
+#    return {"dataset": result}
 
 # Returns a single dataset in JSON
 @app.get('/dataset_2019/<id>')
 def get_dataset_2019(id):
    """Returns the dataset with the specified id in JSON."""
-   # Get the dataset from the database
    try:
+      logging.debug(f"Attempting to retrieve dataset with ID: {id}")
       dataset = db.session.execute(db.select(Dataset2019).where(Dataset2019.id == id)).scalar_one_or_none()
-      # Serialize the dataset
+      if dataset is None:
+          logging.debug(f"No dataset found for ID: {id}")
+          abort(404, description="Dataset not found")
       result = dataset_schema_2019.dump(dataset)
       return {"dataset": result}
    except SQLAlchemyError as e:
-      # See https://flask.palletsprojects.com/en/2.3.x/errorhandling/#returning-api-errors-as-json
-        abort(404, description="Region not found.")
+      logging.exception("An error occurred while querying the database")
+      abort(404, description="Region not found.")
 
+# # Returns a single dataset in JSON
+# @app.get('/dataset_2019/<id>')
+# def get_dataset_2019(id):
+#    """Returns the dataset with the specified id in JSON."""
+#    # Get the dataset from the database
+#    try:
+#       dataset = db.session.execute(db.select(Dataset2019).where(Dataset2019.id == id)).scalar_one_or_none()
+#       # Serialise the dataset
+#       result = dataset_schema_2019.dump(dataset)
+#       return {"dataset": result}
+#    except SQLAlchemyError as e:
+#       # See https://flask.palletsprojects.com/en/2.3.x/errorhandling/#returning-api-errors-as-json
+#         abort(404, description="Region not found.")
 
-from flask import request
 
 @app.post('/dataset_2019')
 def add_data_2019():
@@ -82,7 +123,7 @@ def add_data_2019():
    data = dataset_schema_2019.load(dt_json)
    db.session.add(data)
    db.session.commit()
-   return {"message":f"Data added successfully to the 2019 database. ID: {data.id}"}
+   return {"message":f"Data added successfully to the 2019 database. ID: {data.id}",}, 201
 
 
 @app.delete('/dataset_2019/<int:id>')
@@ -102,7 +143,6 @@ from flask import make_response
 @app.patch('/dataset_2019/<id>')
 def update_data_2019(id):
    """Updates changed fields for the dataset
-   
    """
    # Find the data in the dataset
    exising_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()

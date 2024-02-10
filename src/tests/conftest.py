@@ -26,13 +26,22 @@ def app():
     }
     app = create_app(test_config=test_cfg)
 
+    # Push an application context to bind the SQLAlchemy object to the application
+    with app.app_context():
+        db.create_all()
     
     yield app
+    
+    # Clean up / reset resources
+    with app.app_context():
+        db.session.remove()  # Close the database session
+        db.drop_all()
 
-    # Clean up / Reset resourcee
+        # Explicitly close the database connection
+        db.engine.dispose()
+
     # Delete the test database
-    # os.unlink(db_path)
-
+    os.unlink(db_path)
 
 @pytest.fixture()
 def client(app):
@@ -44,7 +53,7 @@ def new_dataset(app):
     
     Adds a new dataset to the database and returns an instance of the dataset object.
     """
-    new_dataset = {
+    new_dataset_data = {
         "id": 45,
         "location": "NEW",
         "ps_eligible_2019": 100,
@@ -54,16 +63,17 @@ def new_dataset(app):
     }
 
     with app.app_context():
-        db.session.add(new_dataset)
+        # Creates an instance of the Dataset2019 using the dictionary
+        dataset_instance = Dataset2019(**new_dataset_data)
+        db.session.add(dataset_instance)
         db.session.commit()
 
-    yield new_dataset
+        yield dataset_instance
 
-    # Remove the region from the database at the end of the test if it still exists
-    with app.app_context():
-        dataset_exists = db.session.query(exists().where(Dataset2019.id == new_dataset.id)).scalar()
+        # Remove the region from the database at the end of the test if it still exists
+        dataset_exists = db.session.query(exists().where(Dataset2019.id == dataset_instance.id)).scalar()
         if dataset_exists:
-            db.session.delete(new_dataset)
+            db.session.delete(dataset_instance)
             db.session.commit()
 
     

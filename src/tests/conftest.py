@@ -46,6 +46,7 @@ def app():
 def client(app):
     return app.test_client()
 
+
 @pytest.fixture(scope='function')
 def new_dataset(app):
     """Create a new dataset and add to database.
@@ -61,6 +62,7 @@ def new_dataset(app):
         "sc_enroll_2019": 1000
     }
 
+    # Push an application context to bind the SQLAlchemy object to the application
     with app.app_context():
         # Creates an instance of the Dataset2019 using the dictionary
         dataset_instance = Dataset2019(**new_dataset_data)

@@ -121,7 +121,7 @@ def test_patch_dataset_2019(client, new_dataset):
     AND a Flask test client
     WHEN an UPDATE request is made to /dataset_2019/45 with a new location
     THEN the response status code should be 200
-    AND the response should include the message 'Dataset updated successfully from the 2019 database. ID: 46'
+    AND the response should include the message 'Dataset updated'
     """
     # The id of the new dataset
     dataset_id = new_dataset.id
@@ -130,7 +130,7 @@ def test_patch_dataset_2019(client, new_dataset):
     # Make a request to the /dataset_2019/45 route with the new location
     response = client.patch(f'/dataset_2019/{dataset_id}', json=new_dataset_info)
     # Check that the response contains the message 'Dataset updated'
-    assert response.json['message'] == 'Dataset updated successfully from the 2019 database. ID: 46'
+    assert response.json['message'] == 'Dataset updated'
     # Check that the response status code is 200
     assert response.status_code == 200
 

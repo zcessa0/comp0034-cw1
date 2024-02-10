@@ -138,9 +138,23 @@ def test_patch_dataset_2019(client, new_dataset):
     THEN the response status code should be 200
     AND the response should include the message 'Dataset updated'
     """
+    dataset_id = new_dataset.id
     new_dataset_info = {'ps_enroll_2019': 1500}
-    dataset_id = new_dataset['id']
     response = client.patch(f'/dataset_2019/{dataset_id}', json=new_dataset_info)
 
-    assert response.json['message'] == f'Dataset {dataset_id} updated'
+    assert response.json['message'] == 'Dataset updated'
     assert response.status_code == 200
+
+def test_delete_dataset_2019(client, new_dataset):
+    """
+    GIVEN an existing dataset
+    AND a Flask test client
+    WHEN a DELETE request is made to /dataset_2019/45
+    THEN the response status code should be 200
+    AND the response content should include the message 'Data deleted successfully from the 2019 database. ID: 45'
+    """
+    dataset_id = new_dataset.id
+    response = client.delete(f'/dataset_2019/{dataset_id}')
+    assert response.status_code == 200
+    expected_message = f"Data deleted successfully from the 2019 database. ID: {dataset_id}"
+    assert response.json['message'] == expected_message

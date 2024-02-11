@@ -13,7 +13,7 @@ I only tested routes that are related to the 2019 Dataset as testing all routes 
 
 ### POST /dataset_2019
 1. test_post_dataset_2019 - Checks new dataset added and 201 returned
-2. test_dataset_2019_post_error - Checks 400 returned for invalid data
+2. test_post_dataset_2019_error - Checks 400 returned for invalid data
 
 ### PATCH
 1. test_patch_dataset_2019 - Checks dataset updated and 200 returned

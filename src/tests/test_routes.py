@@ -96,7 +96,7 @@ def test_post_dataset_2019(client):
     # Check that the response status code is 201
     assert response.status_code == 201
 
-def test_dataset_post_error(client):
+def test_post_dataset_2019_error(client):
     """
     GIVEN a Flask test client
     AND JSON for a new dataset that is missing a required field ("dataset")
@@ -134,6 +134,22 @@ def test_patch_dataset_2019(client, new_dataset):
     # Check that the response status code is 200
     assert response.status_code == 200
 
+def test_patch_dataset_2019_not_exists(client):
+    """
+    GIVEN a Flask test client
+    WHEN an UPDATE request is made to /dataset_2019/100
+    THEN the response status code should be 404
+    """
+    data_to_update = {
+        "location": "Test",
+        "ps_enroll_2019": 1000,
+        "ps_eligible_2019": 500,
+        "sc_enroll_2019": 2000,
+        "sc_eligible_2019": 1500
+    }
+    response = client.patch('/dataset_2019/100', json=data_to_update)
+    assert response.status_code == 404
+
 def test_delete_dataset_2019(client, new_dataset):
     """
     GIVEN an existing dataset
@@ -151,4 +167,13 @@ def test_delete_dataset_2019(client, new_dataset):
     assert response.json['message'] == expected_message
     # Check that the response status code is 200
     assert response.status_code == 200
+
+def test_delete_dataset_2019_not_exists(client):
+    """
+    GIVEN a Flask test client
+    WHEN a DELETE request is made to /dataset_2019/100
+    THEN the response status code should be 404
+    """
+    response = client.delete('/dataset_2019/100')
+    assert response.status_code == 404
     

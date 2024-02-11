@@ -33,12 +33,6 @@ dataset_schema_2015= DatasetSchema2015()
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)  # Set the logging level to DEBUG
 
-app.errorhandler(500)
-def internal_server_error(e):
-    """Error handler for 500 Internal Server Error"""
-    logging.exception("Internal Server Error occurred")
-    return jsonify(error="Internal Server Error"), 500
-
 @app.errorhandler(404)
 def resource_not_found(e):
     """Error handler for 404"""
@@ -63,7 +57,7 @@ def get_datasets_2019():
         return {"datasets": result}
     except SQLAlchemyError as e:
         logging.exception("An error occurred while querying the database")
-        abort(500, description="Internal Server Error")
+        abort(404, description="Dataset not found")
 
 # Returns a single dataset in JSON
 @app.get('/dataset_2019/<id>')
@@ -79,7 +73,7 @@ def get_dataset_2019(id):
       return {"dataset": result}
    except SQLAlchemyError as e:
       logging.exception("An error occurred while querying the database")
-      abort(404, description="Region not found.")
+      abort(404, description="Dataset not found.")
 
 @app.post('/dataset_2019')
 def add_data_2019():
@@ -93,9 +87,6 @@ def add_data_2019():
     except ValidationError as e:
         logging.exception("Validation error occurred while adding data to the 2019 database")
         return {"error": str(e)}, 400
-    except SQLAlchemyError as e:
-        logging.exception("An error occurred while adding data to the 2019 database")
-        abort(500, description="Internal Server Error")
 
 
 @app.delete('/dataset_2019/<int:id>')
@@ -110,7 +101,7 @@ def delete_data_2019(id):
         return {"message": f"Data deleted successfully from the 2019 database. ID: {data.id}"}, 200
     except SQLAlchemyError as e:
         logging.exception("An error occurred while deleting data from the 2019 database")
-        abort(500, description="Internal Server Error")
+        abort(404, description="Dataset not found")
 
 @app.patch('/dataset_2019/<id>')
 def update_data_2019(id):
@@ -130,10 +121,6 @@ def update_data_2019(id):
     except ValidationError as e:
         logging.exception("Validation error occurred while updating data in the 2019 database")
         return {"error": str(e)}, 400
-    
-    except SQLAlchemyError as e:
-        logging.exception("An error occurred while updating data in the 2019 database")
-        abort(500, description="Internal Server Error")
    
 
 # 2018 ROUTES
@@ -142,9 +129,13 @@ def update_data_2019(id):
 @app.route('/dataset_2018', methods=['GET'])
 def get_datasets_2018():
     """Returns a list of all datasets in the database for 2018."""
-    datasets = db.session.execute(db.select(Dataset2018)).scalars()
-    result = datasets_schema_2018.dump(datasets)
-    return {"datasets": result}
+    try:
+        datasets = db.session.execute(db.select(Dataset2018)).scalars()
+        result = datasets_schema_2018.dump(datasets)
+        return {"datasets": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
 @app.route('/dataset_2018/<id>', methods=['GET'])
 def get_dataset_2018(id):
@@ -163,51 +154,59 @@ def get_dataset_2018(id):
 @app.route('/dataset_2018', methods=['POST'])
 def add_data_2018():
     """Adds a new dataset to the 2018 database."""
-    dt_json = request.get_json()
-    data = dataset_schema_2018.load(dt_json)
-    db.session.add(data)
-    db.session.commit()
-    return {"message": f"Data added successfully to the 2018 database. ID: {data.id}"}, 201
+    try:
+        dt_json = request.get_json()
+        data = dataset_schema_2018.load(dt_json)
+        db.session.add(data)
+        db.session.commit()
+        return {"message": f"Data added successfully to the 2018 database. ID: {data.id}"}, 201
+    except ValidationError as e:
+        logging.exception("Validation error occurred while adding data to the 2018 database")
+        return {"error": str(e)}, 400
 
 @app.route('/dataset_2018/<int:id>', methods=['DELETE'])
 def delete_data_2018(id):
     """Deletes a dataset from the 2018 database."""
-    data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
-    if data is None:
-        abort(404, description=f"Dataset with ID {id} not found")
-    db.session.delete(data)
-    db.session.commit()
-    return {"message": f"Data deleted successfully from the 2018 database. ID: {data.id}"}, 200
-
-# Patch route for 2018 dataset
+    try:
+        data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
+        if data is None:
+            abort(404, description=f"Dataset with ID {id} not found")
+        db.session.delete(data)
+        db.session.commit()
+        return {"message": f"Data deleted successfully from the 2018 database. ID: {data.id}"}, 200
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while deleting data from the 2018 database")
+        abort(404, description="Dataset not found")
+        
 @app.patch('/dataset_2018/<id>')
 def update_data_2018(id):
     """Updates changed fields for the 2018 dataset."""
-    existing_data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
-    
-    if existing_data is None:
-        abort(404, description="Dataset not found")
-
-    data_json = request.get_json()
-    data_updated = dataset_schema_2018.load(data_json, instance=existing_data, partial=True)
-    db.session.add(data_updated)
-    db.session.commit()
-
-    updated_data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
-    result = dataset_schema_2018.dump(updated_data)
-
-    return jsonify({"message": "Dataset updated", "updated_data": result}), 200
-
-
-# 2017 ROUTES
+    try:
+        existing_data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
+        if existing_data is None:
+            abort(404, description="Dataset not found")
+        data_json = request.get_json()
+        data_updated = dataset_schema_2018.load(data_json, instance=existing_data, partial=True)
+        db.session.add(data_updated)
+        db.session.commit()
+        updated_data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
+        result = dataset_schema_2018.dump(updated_data)
+        return jsonify({"message": "Dataset updated", "updated_data": result}), 200
+    except ValidationError as e:
+        logging.exception("Validation error occurred while updating data in the 2018 database")
+        return {"error": str(e)}, 400
 
 # Define routes for 2017 datasets
 @app.route('/dataset_2017', methods=['GET'])
 def get_datasets_2017():
     """Returns a list of all datasets in the database for 2017."""
-    datasets = db.session.execute(db.select(Dataset2017)).scalars()
-    result = datasets_schema_2017.dump(datasets)
-    return {"datasets": result}
+    try:
+        datasets = db.session.execute(db.select(Dataset2017)).scalars()
+        result = datasets_schema_2017.dump(datasets)
+        return {"datasets": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
 @app.route('/dataset_2017/<id>', methods=['GET'])
 def get_dataset_2017(id):
@@ -227,47 +226,59 @@ def get_dataset_2017(id):
 @app.route('/dataset_2017', methods=['POST'])
 def add_data_2017():
     """Adds a new dataset to the 2017 database."""
-    dt_json = request.get_json()
-    data = dataset_schema_2017.load(dt_json)
-    db.session.add(data)
-    db.session.commit()
-    return {"message": f"Data added successfully to the 2017 database. ID: {data.id}"}, 201
+    try:
+        dt_json = request.get_json()
+        data = dataset_schema_2017.load(dt_json)
+        db.session.add(data)
+        db.session.commit()
+        return {"message": f"Data added successfully to the 2017 database. ID: {data.id}"}, 201
+    except ValidationError as e:
+        logging.exception("Validation error occurred while adding data to the 2017 database")
+        return {"error": str(e)}, 400
 
 @app.route('/dataset_2017/<int:id>', methods=['DELETE'])
 def delete_data_2017(id):
     """Deletes a dataset from the 2017 database."""
-    data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
-    if data is None:
-        abort(404, description=f"Dataset with ID {id} not found")
-    db.session.delete(data)
-    db.session.commit()
-    return {"message": f"Data deleted successfully from the 2017 database. ID: {data.id}"}, 200
+    try:
+        data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
+        if data is None:
+            abort(404, description=f"Dataset with ID {id} not found")
+        db.session.delete(data)
+        db.session.commit()
+        return {"message": f"Data deleted successfully from the 2017 database. ID: {data.id}"}, 200
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while deleting data from the 2017 database")
+        abort(404, description="Dataset not found")
 
 @app.patch('/dataset_2017/<id>')
 def update_data_2017(id):
     """Updates changed fields for the 2017 dataset."""
-    existing_data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
-    
-    if existing_data is None:
-        abort(404, description="Dataset not found")
-
-    data_json = request.get_json()
-    data_updated = dataset_schema_2017.load(data_json, instance=existing_data, partial=True)
-    db.session.add(data_updated)
-    db.session.commit()
-
-    updated_data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
-    result = dataset_schema_2017.dump(updated_data)
-
-
+    try:
+        existing_data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
+        if existing_data is None:
+            abort(404, description="Dataset not found")
+        data_json = request.get_json()
+        data_updated = dataset_schema_2017.load(data_json, instance=existing_data, partial=True)
+        db.session.add(data_updated)
+        db.session.commit()
+        updated_data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
+        result = dataset_schema_2017.dump(updated_data)
+        return jsonify({"message": "Dataset updated", "updated_data": result}), 200
+    except ValidationError as e:
+        logging.exception("Validation error occurred while updating data in the 2017 database")
+        return {"error": str(e)}, 400
 
 # Define routes for 2016 datasets
 @app.route('/dataset_2016', methods=['GET'])
 def get_datasets_2016():
     """Returns a list of all datasets in the database for 2016."""
-    datasets = db.session.execute(db.select(Dataset2016)).scalars()
-    result = datasets_schema_2016.dump(datasets)
-    return {"datasets": result}
+    try:
+        datasets = db.session.execute(db.select(Dataset2016)).scalars()
+        result = datasets_schema_2016.dump(datasets)
+        return {"datasets": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
 @app.route('/dataset_2016/<id>', methods=['GET'])
 def get_dataset_2016(id):
@@ -283,53 +294,62 @@ def get_dataset_2016(id):
         logging.exception("An error occurred while querying the database")
         abort(404, description="Dataset not found")
 
-
 @app.route('/dataset_2016', methods=['POST'])
 def add_data_2016():
     """Adds a new dataset to the 2016 database."""
-    dt_json = request.get_json()
-    data = dataset_schema_2016.load(dt_json)
-    db.session.add(data)
-    db.session.commit()
-    return {"message": f"Data added successfully to the 2016 database. ID: {data.id}"}, 201
+    try:
+        dt_json = request.get_json()
+        data = dataset_schema_2016.load(dt_json)
+        db.session.add(data)
+        db.session.commit()
+        return {"message": f"Data added successfully to the 2016 database. ID: {data.id}"}, 201
+    except ValidationError as e:
+        logging.exception("Validation error occurred while adding data to the 2016 database")
+        return {"error": str(e)}, 400
 
 @app.route('/dataset_2016/<int:id>', methods=['DELETE'])
 def delete_data_2016(id):
     """Deletes a dataset from the 2016 database."""
-    data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
-    if data is None:
-        abort(404, description=f"Dataset with ID {id} not found")
-    db.session.delete(data)
-    db.session.commit()
-    return {"message": f"Data deleted successfully from the 2016 database. ID: {data.id}"}, 200
+    try:
+        data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
+        if data is None:
+            abort(404, description=f"Dataset with ID {id} not found")
+        db.session.delete(data)
+        db.session.commit()
+        return {"message": f"Data deleted successfully from the 2016 database. ID: {data.id}"}, 200
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while deleting data from the 2016 database")
+        abort(404, description="Dataset not found")
 
 @app.patch('/dataset_2016/<id>')
 def update_data_2016(id):
     """Updates changed fields for the 2016 dataset."""
-    existing_data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
-    
-    if existing_data is None:
-        abort(404, description="Dataset not found")
-
-    data_json = request.get_json()
-    data_updated = dataset_schema_2016.load(data_json, instance=existing_data, partial=True)
-    db.session.add(data_updated)
-    db.session.commit()
-
-    updated_data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
-    result = dataset_schema_2016.dump(updated_data)
-
-    return jsonify({"message": "Dataset updated", "updated_data": result}), 200
-
-
+    try:
+        existing_data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
+        if existing_data is None:
+            abort(404, description="Dataset not found")
+        data_json = request.get_json()
+        data_updated = dataset_schema_2016.load(data_json, instance=existing_data, partial=True)
+        db.session.add(data_updated)
+        db.session.commit()
+        updated_data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
+        result = dataset_schema_2016.dump(updated_data)
+        return jsonify({"message": "Dataset updated", "updated_data": result}), 200
+    except ValidationError as e:
+        logging.exception("Validation error occurred while updating data in the 2016 database")
+        return {"error": str(e)}, 400
 
 # Define routes for 2015 datasets
 @app.route('/dataset_2015', methods=['GET'])
 def get_datasets_2015():
     """Returns a list of all datasets in the database for 2015."""
-    datasets = db.session.execute(db.select(Dataset2015)).scalars()
-    result = datasets_schema_2015.dump(datasets)
-    return {"datasets": result}
+    try:
+        datasets = db.session.execute(db.select(Dataset2015)).scalars()
+        result = datasets_schema_2015.dump(datasets)
+        return {"datasets": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
 @app.route('/dataset_2015/<id>', methods=['GET'])
 def get_dataset_2015(id):
@@ -348,39 +368,48 @@ def get_dataset_2015(id):
 @app.route('/dataset_2015', methods=['POST'])
 def add_data_2015():
     """Adds a new dataset to the 2015 database."""
-    dt_json = request.get_json()
-    data = dataset_schema_2015.load(dt_json)
-    db.session.add(data)
-    db.session.commit()
-    return {"message": f"Data added successfully to the 2015 database. ID: {data.id}"}, 201
+    try:
+        dt_json = request.get_json()
+        data = dataset_schema_2015.load(dt_json)
+        db.session.add(data)
+        db.session.commit()
+        return {"message": f"Data added successfully to the 2015 database. ID: {data.id}"}, 201
+    except ValidationError as e:
+        logging.exception("Validation error occurred while adding data to the 2015 database")
+        return {"error": str(e)}, 400
 
 @app.route('/dataset_2015/<int:id>', methods=['DELETE'])
 def delete_data_2015(id):
     """Deletes a dataset from the 2015 database."""
-    data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
-    if data is None:
-        abort(404, description=f"Dataset with ID {id} not found")
-    db.session.delete(data)
-    db.session.commit()
-    return {"message": f"Data deleted successfully from the 2015 database. ID: {data.id}"}, 200
+    try:
+        data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
+        if data is None:
+            abort(404, description=f"Dataset with ID {id} not found")
+        db.session.delete(data)
+        db.session.commit()
+        return {"message": f"Data deleted successfully from the 2015 database. ID: {data.id}"}, 200
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while deleting data from the 2015 database")
+        abort(404, description="Dataset not found")
 
 @app.patch('/dataset_2015/<id>')
 def update_data_2015(id):
     """Updates changed fields for the 2015 dataset."""
-    existing_data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
-    
-    if existing_data is None:
-        abort(404, description="Dataset not found")
+    try:
+        existing_data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
+        if existing_data is None:
+            abort(404, description="Dataset not found")
+        data_json = request.get_json()
+        data_updated = dataset_schema_2015.load(data_json, instance=existing_data, partial=True)
+        db.session.add(data_updated)
+        db.session.commit()
+        updated_data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
+        result = dataset_schema_2015.dump(updated_data)
+        return jsonify({"message": "Dataset updated", "updated_data": result}), 200
+    except ValidationError as e:
+        logging.exception("Validation error occurred while updating data in the 2015 database")
+        return {"error": str(e)}, 400
 
-    data_json = request.get_json()
-    data_updated = dataset_schema_2015.load(data_json, instance=existing_data, partial=True)
-    db.session.add(data_updated)
-    db.session.commit()
-
-    updated_data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
-    result = dataset_schema_2015.dump(updated_data)
-
-    return jsonify({"message": "Dataset updated", "updated_data": result}), 200
 
 
 

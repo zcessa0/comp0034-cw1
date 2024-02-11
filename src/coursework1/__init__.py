@@ -89,25 +89,102 @@ from coursework1.model import Dataset2019, Dataset2018, Dataset2017, Dataset2016
 # Function to add data from CSV file
 def add_data_from_csv(app):
     """Adds data to the database if it does not already exist."""
-    datasets = [(Dataset2019, slice(0, 6)), (Dataset2018, slice(6, 12)), (Dataset2017, slice(12, 18)),
-                (Dataset2016, slice(18, 24)), (Dataset2015, slice(24, 30))]
-    
-    for dataset_class, columns_slice in datasets:
-        dataset = db.session.query(dataset_class).first()
-        if not dataset:
-            app.logger.info(f"Start adding {dataset_class.__name__} data to the database")
-            dataset_file = Path(__file__).parent.joinpath("data", "dataset_prepared.csv")
-            with open(dataset_file, 'r') as file:
-                csv_reader = csv.reader(file)
-                next(csv_reader)  # Skip header row
-                for row in csv_reader:
-                    d = dataset_class(
-                        location=row[columns_slice.start],
-                        ps_enroll=row[columns_slice.start + 1],
-                        ps_eligible=row[columns_slice.start + 2],
-                        sc_enroll=row[columns_slice.start + 3],
-                        sc_eligible=row[columns_slice.start + 4]
-                    )
-                    db.session.add(d)
-                db.session.commit()
+
+    from coursework1.model import Dataset2019, Dataset2018, Dataset2017, Dataset2016, Dataset2015
+
+        # If there are no datasets, then add them
+    dataset_2019 = db.session.query(Dataset2019).first()
+    if not dataset_2019:
+        print("Start adding dataset data to the database")
+        dataset_file = Path(__file__).parent.joinpath("data", "dataset_prepared.csv")
+        with open(dataset_file, 'r') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip header row
+            for row in csv_reader:
+                # Adjust the following based on your dataset model structure
+                d = Dataset2019(
+                    location=row[0],
+                    ps_enroll_2019=row[1],
+                    ps_eligible_2019=row[2],
+                    sc_enroll_2019=row[4],
+                    sc_eligible_2019=row[5],
+                )
+                db.session.add(d)
+            db.session.commit()
+
+    dataset_2018 = db.session.query(Dataset2018).first()
+    if not dataset_2018:
+        print("Start adding dataset data to the database")
+        dataset_file = Path(__file__).parent.joinpath("data", "dataset_prepared.csv")
+        with open(dataset_file, 'r') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip header row
+            for row in csv_reader:
+                # Adjust the following based on your dataset model structure
+                d = Dataset2018(
+                    location=row[0],
+                    ps_enroll_2018=row[7],
+                    ps_eligible_2018=row[8],
+                    sc_enroll_2018=row[10],
+                    sc_eligible_2018=row[11],
+                )
+                db.session.add(d)
+            db.session.commit()
+
+    dataset_2017 = db.session.query(Dataset2017).first()
+    if not dataset_2017:
+        print("Start adding dataset data to the database")
+        dataset_file = Path(__file__).parent.joinpath("data", "dataset_prepared.csv")
+        with open(dataset_file, 'r') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip header row
+            for row in csv_reader:
+                # Adjust the following based on your dataset model structure
+                d = Dataset2017(
+                    location=row[0],
+                    ps_enroll_2017=row[13],
+                    ps_eligible_2017=row[14],
+                    sc_enroll_2017=row[16],
+                    sc_eligible_2017=row[17],
+                )
+                db.session.add(d)
+            db.session.commit()
+
+    dataset_2016 = db.session.query(Dataset2016).first()
+    if not dataset_2016:
+        print("Start adding dataset data to the database")
+        dataset_file = Path(__file__).parent.joinpath("data", "dataset_prepared.csv")
+        with open(dataset_file, 'r') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip header row
+            for row in csv_reader:
+                # Adjust the following based on your dataset model structure
+                d = Dataset2016(
+                    location=row[0],
+                    ps_enroll_2016=row[19],
+                    ps_eligible_2016=row[20],
+                    sc_enroll_2016=row[22],
+                    sc_eligible_2016=row[23],
+                )
+                db.session.add(d)
+            db.session.commit()
+
+    dataset_2015 = db.session.query(Dataset2015).first()
+    if not dataset_2015:
+        print("Start adding dataset data to the database")
+        dataset_file = Path(__file__).parent.joinpath("data", "dataset_prepared.csv")
+        with open(dataset_file, 'r') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip header row
+            for row in csv_reader:
+                # Adjust the following based on your dataset model structure
+                d = Dataset2015(
+                    location=row[0],
+                    ps_enroll_2015=row[25],
+                    ps_eligible_2015=row[26],
+                    sc_enroll_2015=row[28],
+                    sc_eligible_2015=row[29],
+                )
+                db.session.add(d)
+            db.session.commit()
 

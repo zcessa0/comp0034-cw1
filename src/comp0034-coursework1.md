@@ -78,13 +78,21 @@ To delete the entires added, just passing this into the URL: http://127.0.0.1:50
 ## References
 
 ### Acknowledgement of the use of AI
-Name and Version : ChatGPT 3.5
-Publisher : OpenAI
-URL: https://chat.openai.com/
+- Name and Version : ChatGPT 3.5
+- Publisher : OpenAI
+- URL: https://chat.openai.com/
 
 I used ChatGPT 3.5 to help understand what some errors meant when raised during development and suggested some solutions and sometimes used to complete repetitive tasks such as models for all datasets or routes after it was completed for the first dataset.
 
 The use of AI here saved me some time and increased efficiency when writing repetitive code and explained some lines of code and errors in a way I could understand and then track to find the problem.
+
+## Dataset Attribution
+
+- Dataset Name: Pupils Eligible for Free School Meals, Borough
+- Creator/Organization: Department of Education 
+- Source: Census
+- License: Uk Open Government License (OGL v2)
+- Link: https://data.london.gov.uk/dataset/pupils-eligible-free-school-meals-borough
 
 
 

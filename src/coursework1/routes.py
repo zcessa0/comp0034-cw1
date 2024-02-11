@@ -71,15 +71,6 @@ def get_datasets_2019():
     result = datasets_schema_2019.dump(datasets)
     return {"datasets": result}
 
-# @app.get('/dataset_2019/<id>')
-# def get_dataset_2019(id):
-#    """Returns the dataset with the specified id in JSON."""
-#    # Get the dataset from the database
-#    dataset = db.session.execute(db.select(Dataset2019).where(Dataset2019.id == id)).scalar_one_or_none()
-#    # Serialize the dataset
-#    result = dataset_schema_2019.dump(dataset)
-#    return {"dataset": result}
-
 # Returns a single dataset in JSON
 @app.get('/dataset_2019/<id>')
 def get_dataset_2019(id):
@@ -95,21 +86,6 @@ def get_dataset_2019(id):
    except SQLAlchemyError as e:
       logging.exception("An error occurred while querying the database")
       abort(404, description="Region not found.")
-
-# # Returns a single dataset in JSON
-# @app.get('/dataset_2019/<id>')
-# def get_dataset_2019(id):
-#    """Returns the dataset with the specified id in JSON."""
-#    # Get the dataset from the database
-#    try:
-#       dataset = db.session.execute(db.select(Dataset2019).where(Dataset2019.id == id)).scalar_one_or_none()
-#       # Serialise the dataset
-#       result = dataset_schema_2019.dump(dataset)
-#       return {"dataset": result}
-#    except SQLAlchemyError as e:
-#       # See https://flask.palletsprojects.com/en/2.3.x/errorhandling/#returning-api-errors-as-json
-#         abort(404, description="Region not found.")
-
 
 @app.post('/dataset_2019')
 def add_data_2019():
@@ -134,11 +110,13 @@ def delete_data_2019(id):
 
    :returns: JSON """
    data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
+   if data is None:
+      abort(404, description=f"Dataset with ID {id} not found")
+    
    db.session.delete(data)
    db.session.commit()
-   return {"message":f"Data deleted successfully from the 2019 database. ID: {data.id}"}, 200
+   return {"message": f"Data deleted successfully from the 2019 database. ID: {data.id}"}, 200
 
-from flask import make_response
 
 @app.patch('/dataset_2019/<id>')
 def update_data_2019(id):
@@ -146,9 +124,14 @@ def update_data_2019(id):
    """
    # Find the data in the dataset
    existing_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
+   
+   if existing_data is None:
+       # Dataset not found, raise 404 error
+       abort(404, description="Dataset not found")
+
    # Get the updated details from the json sent in the HTTP patch request
    data_json = request.get_json()
-   # Use Marshmallow to update the exisiting data records with the changes from the JSON
+   # Use Marshmallow to update the existing data records with the changes from the JSON
    data_updated = dataset_schema_2019.load(data_json, instance=existing_data, partial=True)
    # Commit the changes to the database
    db.session.add(data_updated)

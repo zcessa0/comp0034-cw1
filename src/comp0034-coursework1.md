@@ -6,8 +6,8 @@ I only tested routes that are related to the 2019 Dataset as testing all routes 
 How each route is tested twice:
 
 ## Get /dataset_2019
-test_get_dataset_2019_status_code - Checks status code
-test_get_dataset_2019_json - Checks response contains expected JSON
+1. test_get_dataset_2019_status_code - Checks status code
+2. test_get_dataset_2019_json - Checks response contains expected JSON
 
 ## Get /dataset_2019/<id>
 test_get_specific_dataset_2019 - Checks response matches expected dataset 

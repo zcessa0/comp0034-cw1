@@ -33,30 +33,22 @@ dataset_schema_2015= DatasetSchema2015()
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)  # Set the logging level to DEBUG
 
+app.errorhandler(500)
+def internal_server_error(e):
+    """Error handler for 500 Internal Server Error"""
+    logging.exception("Internal Server Error occurred")
+    return jsonify(error="Internal Server Error"), 500
+
 @app.errorhandler(404)
 def resource_not_found(e):
-    """
-    Error handler for 404
-    
-    Args:
-        HTTP 404 error
-    Returns:
-        JSON response with the validation error message and the 404 status code
-    """
+    """Error handler for 404"""
     return jsonify(error=str(e)), 404
 
 @app.errorhandler(ValidationError)
 def register_validation_error(error):
-   """Error handler for marshmallow schema validation errors
-   
-   Args:
-      error (ValidationError): Marshmallow error
-   
-   Returns:
-      HTTP response with the validation error message and the 400 status code
-   """
-   response = error.messages 
-   return response, 400
+    """Error handler for marshmallow schema validation errors"""
+    response = error.messages 
+    return response, 400
 
 # 2019 ROUTES
 
@@ -117,227 +109,270 @@ def delete_data_2019(id):
    db.session.commit()
    return {"message": f"Data deleted successfully from the 2019 database. ID: {data.id}"}, 200
 
-
 @app.patch('/dataset_2019/<id>')
 def update_data_2019(id):
-   """Updates changed fields for the dataset
-   """
-   # Find the data in the dataset
-   existing_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
-   
-   if existing_data is None:
-       # Dataset not found, raise 404 error
-       abort(404, description="Dataset not found")
+    """Updates changed fields for the 2019 dataset."""
+    existing_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
+    
+    if existing_data is None:
+        abort(404, description="Dataset not found")
 
-   # Get the updated details from the json sent in the HTTP patch request
-   data_json = request.get_json()
-   # Use Marshmallow to update the existing data records with the changes from the JSON
-   data_updated = dataset_schema_2019.load(data_json, instance=existing_data, partial=True)
-   # Commit the changes to the database
-   db.session.add(data_updated)
-   db.session.commit()
-   # Return JSON showing the updated record
-   updated_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
-   result = dataset_schema_2019.dump(updated_data)
-   response = jsonify({"message": "Dataset updated"})
-   response.headers['Content-Type'] = 'application/json'
+    data_json = request.get_json()
+    data_updated = dataset_schema_2019.load(data_json, instance=existing_data, partial=True)
+    db.session.add(data_updated)
+    db.session.commit()
 
-   return response, 200
+    updated_data = db.session.execute(db.select(Dataset2019).filter_by(id=id)).scalar_one_or_none()
+    result = dataset_schema_2019.dump(updated_data)
+
+    return jsonify({"message": "Dataset updated", "updated_data": result}), 200
    
 
 # 2018 ROUTES
 
-# Returns a list of all datasets in JSON
+# Define routes for 2018 datasets
 @app.route('/dataset_2018', methods=['GET'])
 def get_datasets_2018():
-    """Returns a list of all datasets in the database in JSON."""
-    # Get all the datasets from the database
+    """Returns a list of all datasets in the database for 2018."""
     datasets = db.session.execute(db.select(Dataset2018)).scalars()
-    # Serialize the queryset
     result = datasets_schema_2018.dump(datasets)
     return {"datasets": result}
 
-# Returns a single dataset in JSON
-@app.get('/dataset_2018/<id>')
+@app.route('/dataset_2018/<id>', methods=['GET'])
 def get_dataset_2018(id):
-   """Returns the dataset with the specified id in JSON."""
-   # Get the dataset from the database
-   dataset = db.session.execute(db.select(Dataset2018).where(Dataset2018.id == id)).scalar_one_or_none()
-   # Serialize the dataset
-   result = dataset_schema_2018.dump(dataset)
-   return {"dataset": result}
+    """Returns the dataset with the specified id for 2018."""
+    try:
+        dataset = db.session.execute(db.select(Dataset2018).where(Dataset2018.id == id)).scalar_one_or_none()
+        if dataset is None:
+            logging.debug(f"No dataset found for ID: {id}")
+            abort(404, description="Dataset not found")
+        result = dataset_schema_2018.dump(dataset)
+        return {"dataset": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
-@app.post('/dataset_2018')
+@app.route('/dataset_2018', methods=['POST'])
 def add_data_2018():
-   """ Adds a new dataset to the database
+    """Adds a new dataset to the 2018 database."""
+    dt_json = request.get_json()
+    data = dataset_schema_2018.load(dt_json)
+    db.session.add(data)
+    db.session.commit()
+    return {"message": f"Data added successfully to the 2018 database. ID: {data.id}"}, 201
 
-   Gets the JSON data from the request body and uses this to deserialise JSON to an object using Marshmallow 
-   event_schema.load()
+@app.route('/dataset_2018/<int:id>', methods=['DELETE'])
+def delete_data_2018(id):
+    """Deletes a dataset from the 2018 database."""
+    data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
+    if data is None:
+        abort(404, description=f"Dataset with ID {id} not found")
+    db.session.delete(data)
+    db.session.commit()
+    return {"message": f"Data deleted successfully from the 2018 database. ID: {data.id}"}, 200
 
-   :returns: JSON """
-   dt_json = request.get_json()
-   data = dataset_schema_2018.load(dt_json)
-   db.session.add(data)
-   db.session.commit()
-   return {"message":f"Data added successfully to the database. ID: {data.id}"}
+# Patch route for 2018 dataset
+@app.patch('/dataset_2018/<id>')
+def update_data_2018(id):
+    """Updates changed fields for the 2018 dataset."""
+    existing_data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
+    
+    if existing_data is None:
+        abort(404, description="Dataset not found")
 
+    data_json = request.get_json()
+    data_updated = dataset_schema_2018.load(data_json, instance=existing_data, partial=True)
+    db.session.add(data_updated)
+    db.session.commit()
 
-@app.delete('/dataset_2018/<int:id>')
-def delete_data_2018():
-   """ Deletes a dataset from the database
-   
-   Get the dataset from the database using the id and delete it from the database
+    updated_data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
+    result = dataset_schema_2018.dump(updated_data)
 
-   :returns: JSON """
-   data = db.session.execute(db.select(Dataset2018).filter_by(id=id)).scalar_one_or_none()
-   db.session.delete(data)
-   db.session.commit()
-   return {"message":f"Data deleted successfully from the database. ID: {data.id}"}
+    return jsonify({"message": "Dataset updated", "updated_data": result}), 200
+
 
 # 2017 ROUTES
 
-# Returns a list of all datasets in JSON
+# Define routes for 2017 datasets
 @app.route('/dataset_2017', methods=['GET'])
 def get_datasets_2017():
-    """Returns a list of all datasets in the database in JSON."""
-    # Get all the datasets from the database
+    """Returns a list of all datasets in the database for 2017."""
     datasets = db.session.execute(db.select(Dataset2017)).scalars()
-    # Serialize the queryset
     result = datasets_schema_2017.dump(datasets)
     return {"datasets": result}
 
-# Returns a single dataset in JSON
-@app.get('/dataset_2017/<id>')
+@app.route('/dataset_2017/<id>', methods=['GET'])
 def get_dataset_2017(id):
-   """Returns the dataset with the specified id in JSON."""
-   # Get the dataset from the database
-   dataset = db.session.execute(db.select(Dataset2017).where(Dataset2017.id == id)).scalar_one_or_none()
-   # Serialize the dataset
-   result = dataset_schema_2017.dump(dataset)
-   return {"dataset": result}
+    """Returns the dataset with the specified id for 2017."""
+    try:
+        dataset = db.session.execute(db.select(Dataset2017).where(Dataset2017.id == id)).scalar_one_or_none()
+        if dataset is None:
+            logging.debug(f"No dataset found for ID: {id}")
+            abort(404, description="Dataset not found")
+        result = dataset_schema_2017.dump(dataset)
+        return {"dataset": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
-@app.post('/dataset_2017')
+
+@app.route('/dataset_2017', methods=['POST'])
 def add_data_2017():
-   """ Adds a new dataset to the database
+    """Adds a new dataset to the 2017 database."""
+    dt_json = request.get_json()
+    data = dataset_schema_2017.load(dt_json)
+    db.session.add(data)
+    db.session.commit()
+    return {"message": f"Data added successfully to the 2017 database. ID: {data.id}"}, 201
 
-   Gets the JSON data from the request body and uses this to deserialise JSON to an object using Marshmallow 
-   event_schema.load()
+@app.route('/dataset_2017/<int:id>', methods=['DELETE'])
+def delete_data_2017(id):
+    """Deletes a dataset from the 2017 database."""
+    data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
+    if data is None:
+        abort(404, description=f"Dataset with ID {id} not found")
+    db.session.delete(data)
+    db.session.commit()
+    return {"message": f"Data deleted successfully from the 2017 database. ID: {data.id}"}, 200
 
-   :returns: JSON """
-   dt_json = request.get_json()
-   data = dataset_schema_2017.load(dt_json)
-   db.session.add(data)
-   db.session.commit()
-   return {"message":f"Data added successfully to the database. ID: {data.id}"}
+@app.patch('/dataset_2017/<id>')
+def update_data_2017(id):
+    """Updates changed fields for the 2017 dataset."""
+    existing_data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
+    
+    if existing_data is None:
+        abort(404, description="Dataset not found")
+
+    data_json = request.get_json()
+    data_updated = dataset_schema_2017.load(data_json, instance=existing_data, partial=True)
+    db.session.add(data_updated)
+    db.session.commit()
+
+    updated_data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
+    result = dataset_schema_2017.dump(updated_data)
 
 
-@app.delete('/dataset_2017/<int:id>')
-def delete_data_2017():
-   """ Deletes a dataset from the database
-   
-   Get the dataset from the database using the id and delete it from the database
 
-   :returns: JSON """
-   data = db.session.execute(db.select(Dataset2017).filter_by(id=id)).scalar_one_or_none()
-   db.session.delete(data)
-   db.session.commit()
-   return {"message":f"Data deleted successfully from the database. ID: {data.id}"}
-
-# 2016 ROUTES
-
-# Returns a list of all datasets in JSON
+# Define routes for 2016 datasets
 @app.route('/dataset_2016', methods=['GET'])
 def get_datasets_2016():
-    """Returns a list of all datasets in the database in JSON."""
-    # Get all the datasets from the database
+    """Returns a list of all datasets in the database for 2016."""
     datasets = db.session.execute(db.select(Dataset2016)).scalars()
-    # Serialize the queryset
     result = datasets_schema_2016.dump(datasets)
     return {"datasets": result}
 
-# Returns a single dataset in JSON
-@app.get('/dataset_2016/<id>')
+@app.route('/dataset_2016/<id>', methods=['GET'])
 def get_dataset_2016(id):
-   """Returns the dataset with the specified id in JSON."""
-   # Get the dataset from the database
-   dataset = db.session.execute(db.select(Dataset2016).where(Dataset2016.id == id)).scalar_one_or_none()
-   # Serialize the dataset
-   result = dataset_schema_2016.dump(dataset)
-   return {"dataset": result}
+    """Returns the dataset with the specified id for 2016."""
+    try:
+        dataset = db.session.execute(db.select(Dataset2016).where(Dataset2016.id == id)).scalar_one_or_none()
+        if dataset is None:
+            logging.debug(f"No dataset found for ID: {id}")
+            abort(404, description="Dataset not found")
+        result = dataset_schema_2016.dump(dataset)
+        return {"dataset": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
-@app.post('/dataset_2016')
+
+@app.route('/dataset_2016', methods=['POST'])
 def add_data_2016():
-   """ Adds a new dataset to the database
+    """Adds a new dataset to the 2016 database."""
+    dt_json = request.get_json()
+    data = dataset_schema_2016.load(dt_json)
+    db.session.add(data)
+    db.session.commit()
+    return {"message": f"Data added successfully to the 2016 database. ID: {data.id}"}, 201
 
-   Gets the JSON data from the request body and uses this to deserialise JSON to an object using Marshmallow 
-   event_schema.load()
+@app.route('/dataset_2016/<int:id>', methods=['DELETE'])
+def delete_data_2016(id):
+    """Deletes a dataset from the 2016 database."""
+    data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
+    if data is None:
+        abort(404, description=f"Dataset with ID {id} not found")
+    db.session.delete(data)
+    db.session.commit()
+    return {"message": f"Data deleted successfully from the 2016 database. ID: {data.id}"}, 200
 
-   :returns: JSON """
-   dt_json = request.get_json()
-   data = dataset_schema_2016.load(dt_json)
-   db.session.add(data)
-   db.session.commit()
-   return {"message":f"Data added successfully to the database. ID: {data.id}"}
+@app.patch('/dataset_2016/<id>')
+def update_data_2016(id):
+    """Updates changed fields for the 2016 dataset."""
+    existing_data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
+    
+    if existing_data is None:
+        abort(404, description="Dataset not found")
 
-@app.delete('/dataset_2016/<int:id>')
-def delete_data_2016():
-   """ Deletes a dataset from the database
-   
-   Get the dataset from the database using the id and delete it from the database
+    data_json = request.get_json()
+    data_updated = dataset_schema_2016.load(data_json, instance=existing_data, partial=True)
+    db.session.add(data_updated)
+    db.session.commit()
 
-   :returns: JSON """
-   data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
-   db.session.delete(data)
-   db.session.commit()
-   return {"message":f"Data deleted successfully from the database. ID: {data.id}"}
+    updated_data = db.session.execute(db.select(Dataset2016).filter_by(id=id)).scalar_one_or_none()
+    result = dataset_schema_2016.dump(updated_data)
 
-# 2015 ROUTES
+    return jsonify({"message": "Dataset updated", "updated_data": result}), 200
 
-# Returns a list of all datasets in JSON
+
+
+# Define routes for 2015 datasets
 @app.route('/dataset_2015', methods=['GET'])
 def get_datasets_2015():
-    """Returns a list of all datasets in the database in JSON."""
-    # Get all the datasets from the database
+    """Returns a list of all datasets in the database for 2015."""
     datasets = db.session.execute(db.select(Dataset2015)).scalars()
-    # Serialize the queryset
     result = datasets_schema_2015.dump(datasets)
     return {"datasets": result}
 
-# Returns a single dataset in JSON
-@app.get('/dataset_2015/<id>')
+@app.route('/dataset_2015/<id>', methods=['GET'])
 def get_dataset_2015(id):
-   """Returns the dataset with the specified id in JSON."""
-   # Get the dataset from the database
-   dataset = db.session.execute(db.select(Dataset2015).where(Dataset2015.id == id)).scalar_one_or_none()
-   # Serialize the dataset
-   result = dataset_schema_2015.dump(dataset)
-   return {"dataset": result}
+    """Returns the dataset with the specified id for 2015."""
+    try:
+        dataset = db.session.execute(db.select(Dataset2015).where(Dataset2015.id == id)).scalar_one_or_none()
+        if dataset is None:
+            logging.debug(f"No dataset found for ID: {id}")
+            abort(404, description="Dataset not found")
+        result = dataset_schema_2015.dump(dataset)
+        return {"dataset": result}
+    except SQLAlchemyError as e:
+        logging.exception("An error occurred while querying the database")
+        abort(404, description="Dataset not found")
 
-@app.post('/dataset_2015')
+@app.route('/dataset_2015', methods=['POST'])
 def add_data_2015():
-   """ Adds a new dataset to the database
+    """Adds a new dataset to the 2015 database."""
+    dt_json = request.get_json()
+    data = dataset_schema_2015.load(dt_json)
+    db.session.add(data)
+    db.session.commit()
+    return {"message": f"Data added successfully to the 2015 database. ID: {data.id}"}, 201
 
-   Gets the JSON data from the request body and uses this to deserialise JSON to an object using Marshmallow 
-   event_schema.load()
+@app.route('/dataset_2015/<int:id>', methods=['DELETE'])
+def delete_data_2015(id):
+    """Deletes a dataset from the 2015 database."""
+    data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
+    if data is None:
+        abort(404, description=f"Dataset with ID {id} not found")
+    db.session.delete(data)
+    db.session.commit()
+    return {"message": f"Data deleted successfully from the 2015 database. ID: {data.id}"}, 200
 
-   :returns: JSON """
-   dt_json = request.get_json()
-   data = dataset_schema_2015.load(dt_json)
-   db.session.add(data)
-   db.session.commit()
-   return {"message":f"Data added successfully to the database. ID: {data.id}"}
+@app.patch('/dataset_2015/<id>')
+def update_data_2015(id):
+    """Updates changed fields for the 2015 dataset."""
+    existing_data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
+    
+    if existing_data is None:
+        abort(404, description="Dataset not found")
 
-@app.delete('/dataset_2015/<int:id>')
-def delete_data_2015():
-   """ Deletes a dataset from the database
-   
-   Get the dataset from the database using the id and delete it from the database
+    data_json = request.get_json()
+    data_updated = dataset_schema_2015.load(data_json, instance=existing_data, partial=True)
+    db.session.add(data_updated)
+    db.session.commit()
 
-   :returns: JSON """
-   data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
-   db.session.delete(data)
-   db.session.commit()
-   return {"message":f"Data deleted successfully from the database. ID: {data.id}"}
+    updated_data = db.session.execute(db.select(Dataset2015).filter_by(id=id)).scalar_one_or_none()
+    result = dataset_schema_2015.dump(updated_data)
+
+    return jsonify({"message": "Dataset updated", "updated_data": result}), 200
 
 
 

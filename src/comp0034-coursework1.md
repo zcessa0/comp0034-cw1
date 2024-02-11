@@ -86,7 +86,7 @@ I used ChatGPT 3.5 to help understand what some errors meant when raised during 
 
 The use of AI here saved me some time and increased efficiency when writing repetitive code and explained some lines of code and errors in a way I could understand and then track to find the problem.
 
-## Dataset Attribution
+### Dataset Attribution
 
 - Dataset Name: Pupils Eligible for Free School Meals, Borough
 - Creator/Organization: Department of Education 

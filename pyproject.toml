@@ -3,12 +3,12 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "comp0035-cw"
-version = "0.0.1"
+name = "comp0035-cw1"
+version = "1.0"
 authors = [
-  { name="Sarah Sanders", email="sarah.sanders@ucl.ac.uk" },
+  { name="Saeed Mahamuud", email="saeed.mahamuud.21@ucl.ac.uk" },
 ]
-description = "Template repository for COMP0035 coursework 1 and coursework 2"
+description = "COMP0034 Coursework 1 repository"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [

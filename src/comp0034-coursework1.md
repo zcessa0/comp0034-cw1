@@ -10,5 +10,5 @@ How each route is tested twice:
 2. test_get_dataset_2019_json - Checks response contains expected JSON
 
 ## Get /dataset_2019/<id>
-test_get_specific_dataset_2019 - Checks response matches expected dataset 
+1. test_get_specific_dataset_2019 - Checks response matches expected dataset 
 test_get_dataset_2019_not_exists - Checks 404 returned for non-existent id

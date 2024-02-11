@@ -28,7 +28,7 @@ I only tested routes that are related to the 2019 Dataset as testing all routes 
 I also used ThunderClient from the extension store to test POST, DELETE and PATCH Requests to check whether routes work as intended and errors are handled.
 
 To test it yourself, try sending a POST Request to this URL:http://127.0.0.1:5000/dataset_2019 and passing this JSON into the body: 
-{
+```JSON{
     "id": 45,
     "location": "TEST",
     "ps_eligible_2019": 100,
@@ -36,29 +36,29 @@ To test it yourself, try sending a POST Request to this URL:http://127.0.0.1:500
     "sc_eligible_2019": 100,
     "sc_enroll_2019": 1000,
     "invalid_field": "Unexpected data"
-  }
+  }```
 
 This should return a 400 ERROR with a message associated with it, this is because there is an unexpected field in the JSON body. Now try again with:
-{
+```JSON{
     "id": 45,
     "location": "TEST",
     "ps_eligible_2019": 100,
     "ps_enroll_2019": 1000,
     "sc_eligible_2019": 100,
     "sc_enroll_2019": 1000
-  }
+  }```
 
 This should return a 201 Status Code for successful POST request.
 
 To test PATCH Requests, try sending this to this URL: http://127.0.0.1:5000/dataset_2019/45 and passing this JSON into the body:
-{
+```JSON{
     "id": 45,
     "location": "TEST",
     "ps_eligible_2019": 100,
     "ps_enroll_2019": 1000,
     "sc_eligible_2019": 100,
     "sc_enroll_2019": 1000
-  }
+  }```
 
 This should return a 201 statis code for successful PATCH request and a message that confirm the patch request. If you remove of of the parameter, e.g. sc_enroll_2019' it should return a 400 ERROR code with a message saying that a field is missing.
 

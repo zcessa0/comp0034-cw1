@@ -21,20 +21,15 @@ To run the test suite:
 python -m pytest
 ```
 
-
-
-The project structure follows
-the ['Tests as part of the application code'](https://docs.pytest.org/en/7.1.x/explanation/goodpractices.html#tests-as-part-of-application-code)
-structure. This is to make it easier for you to submit a single folder for the coursework.
+The project structure follows the 'Tests as part of the application code' structure. This is to make it easier for you to submit a single folder for the coursework.
 
 Do not delete, move or rename the following files and folders:
-
 - `LICENSE`
 - `README.md`
 - `.gitignore`
 - `pyproject.toml`
 - `requirements.txt`
-- `src/__init__.py`
-- `src/coursework1` and the files within it: `__init__.py`,`data_prep.py`
-- `src/coursework2` and the files within it: `__init__.py`,`employee.py`
-- `src/coursework2/tests` and the files within it: `__init__.py`,`test_code.py`, `test_employee.py`
+- `src/coursework1` and the files within it : `__init__.py`, `model.py`, `routes.py` and `schema.py`
+- `src/coursework1/data` and the files within it: `dataset.xlsx`, `dataset_prepared.csv` and `dataset_prepared.xlxs`
+- `src/tests` and the files within it: `conftest.py` and `test_routes.py`
+- `src/comp0034-coursework1.md` and `src/testing_ss.png` used to explain testing procedure.

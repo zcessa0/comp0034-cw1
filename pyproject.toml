@@ -5,9 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "comp0035-cw1"
 version = "1.0"
-authors = [
-  { name="Saeed Mahamuud", email="saeed.mahamuud.21@ucl.ac.uk" },
-]
 description = "COMP0034 Coursework 1 repository"
 readme = "README.md"
 requires-python = ">=3.8"

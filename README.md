@@ -2,6 +2,10 @@
 
 This is a Flask REST API for interacting with free school meal data in England.
 
+- Link to GitHub Repository: https://github.com/zcessa0/comp0034-cw1
+
+I made the mistake of not working in the repository in the ucl-comp0035 organisation. I do have one but I temporarily switched to another repository to continue my work, however, I forgot to move back to the organization repository once the issue was resolved. Since moving the repository would involve losing commit history, I've decided to continue my work in the current repository. I apologise for any confusion this may have caused. 
+
 ## Setup
 
 First create a virtual environment before you can run this project.

@@ -1,6 +1,10 @@
 # Testing
 All tests for the REST API used pytest and flask test client. 
 
+- Link to GitHub Repository: https://github.com/zcessa0/comp0034-cw1
+
+I made the mistake of not working in the repository in the ucl-comp0035 organisation. I do have one but I temporarily switched to another repository to continue my work, however, I forgot to move back to the organization repository once the issue was resolved. Since moving the repository would involve losing commit history, I've decided to continue my work in the current repository. I apologise for any confusion this may have caused. 
+
 ## Test Routes
 
 I only tested routes that are related to the 2019 Dataset as testing all routes for every dataset is unnecessary. They all have identical models, routes and schemas, therefore testing only the 2019 Dataset should be sufficient enough to know they all work. To run these test, pass pytest in the termial.

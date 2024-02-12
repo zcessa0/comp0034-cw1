@@ -1,6 +1,27 @@
-# COMP0035 2023-24 Coursework
+# COMP0034 2023-24 Coursework 1
 
-Use this README.md to explain to the markers how to set up your project for COMP0035 coursework 1 and coursework 2.
+This is a Flask REST API for interacting with free school meal data in England.
+
+## Setup
+
+First create a virtual environment before you can run this project.
+### Install Dependencies 
+Install required packages:
+```
+pip install -r requirements.txt
+```
+### Run the App 
+To run the Flask app in development:
+```
+flask --app coursework1 run --debug
+```
+### Test
+To run the test suite:
+```
+python -m pytest
+```
+
+
 
 The project structure follows
 the ['Tests as part of the application code'](https://docs.pytest.org/en/7.1.x/explanation/goodpractices.html#tests-as-part-of-application-code)
